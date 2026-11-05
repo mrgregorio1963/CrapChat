@@ -1,0 +1,185 @@
+{
+  "scenes": [
+    {
+      "id": "business-office",
+      "name": "Business Office",
+      "category": "office",
+      "file": "business-office.jpg"
+    },
+    {
+      "id": "home-office",
+      "name": "Home Office",
+      "category": "office",
+      "file": "home-office.jpg"
+    },
+    {
+      "id": "living-room",
+      "name": "Cozy Living Room",
+      "category": "home",
+      "file": "living-room.jpg"
+    },
+    {
+      "id": "library",
+      "name": "Quiet Library",
+      "category": "home",
+      "file": "library.jpg"
+    },
+    {
+      "id": "kitchen",
+      "name": "Modern Kitchen",
+      "category": "home",
+      "file": "kitchen.jpg"
+    },
+    {
+      "id": "bedroom",
+      "name": "Calm Bedroom",
+      "category": "home",
+      "file": "bedroom.jpg"
+    },
+    {
+      "id": "tropical-beach",
+      "name": "Tropical Beach",
+      "category": "nature",
+      "file": "tropical-beach.jpg"
+    },
+    {
+      "id": "sunset-beach",
+      "name": "Sunset Beach",
+      "category": "nature",
+      "file": "sunset-beach.jpg"
+    },
+    {
+      "id": "blue-sky",
+      "name": "Blue Sky & Clouds",
+      "category": "nature",
+      "file": "blue-sky.jpg"
+    },
+    {
+      "id": "sunset-sky",
+      "name": "Dramatic Sunset Sky",
+      "category": "nature",
+      "file": "sunset-sky.jpg"
+    },
+    {
+      "id": "mountains",
+      "name": "Mountain Range",
+      "category": "nature",
+      "file": "mountains.jpg"
+    },
+    {
+      "id": "snowy-peaks",
+      "name": "Snowy Peaks",
+      "category": "nature",
+      "file": "snowy-peaks.jpg"
+    },
+    {
+      "id": "forest",
+      "name": "Dense Forest",
+      "category": "nature",
+      "file": "forest.jpg"
+    },
+    {
+      "id": "enchanted-forest",
+      "name": "Enchanted Forest",
+      "category": "nature",
+      "file": "enchanted-forest.jpg"
+    },
+    {
+      "id": "city-night",
+      "name": "City Skyline Night",
+      "category": "urban",
+      "file": "city-night.jpg"
+    },
+    {
+      "id": "city-day",
+      "name": "City Skyline Day",
+      "category": "urban",
+      "file": "city-day.jpg"
+    },
+    {
+      "id": "coffee-shop",
+      "name": "Hip Coffee Shop",
+      "category": "urban",
+      "file": "coffee-shop.jpg"
+    },
+    {
+      "id": "coworking",
+      "name": "Coworking Space",
+      "category": "office",
+      "file": "coworking.jpg"
+    },
+    {
+      "id": "conference",
+      "name": "Conference Room",
+      "category": "office",
+      "file": "conference.jpg"
+    },
+    {
+      "id": "rooftop",
+      "name": "Rooftop Terrace",
+      "category": "urban",
+      "file": "rooftop.jpg"
+    },
+    {
+      "id": "park",
+      "name": "Sunny Park",
+      "category": "nature",
+      "file": "park.jpg"
+    },
+    {
+      "id": "lake",
+      "name": "Serene Lake",
+      "category": "nature",
+      "file": "lake.jpg"
+    },
+    {
+      "id": "desert",
+      "name": "Desert Dunes",
+      "category": "nature",
+      "file": "desert.jpg"
+    },
+    {
+      "id": "space",
+      "name": "Space Nebula",
+      "category": "fun",
+      "file": "space.jpg"
+    },
+    {
+      "id": "underwater",
+      "name": "Under the Sea",
+      "category": "fun",
+      "file": "underwater.jpg"
+    },
+    {
+      "id": "arcade",
+      "name": "Retro Arcade",
+      "category": "fun",
+      "file": "arcade.jpg"
+    },
+    {
+      "id": "zen-garden",
+      "name": "Zen Garden",
+      "category": "fun",
+      "file": "zen-garden.jpg"
+    },
+    {
+      "id": "abstract-waves",
+      "name": "Abstract Waves",
+      "category": "fun",
+      "file": "abstract-waves.jpg"
+    },
+    {
+      "id": "bookshelf",
+      "name": "Bookshelf Wall",
+      "category": "home",
+      "file": "bookshelf.jpg"
+    },
+    {
+      "id": "marble-lobby",
+      "name": "Marble Lobby",
+      "category": "office",
+      "file": "marble-lobby.jpg"
+    }
+  ],
+  "generated": "2026-11-05T21:40:40.182575+00:00"
+}

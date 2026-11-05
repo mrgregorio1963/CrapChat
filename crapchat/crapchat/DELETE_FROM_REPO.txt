@@ -1,0 +1,35 @@
+# Delete these files from the GitHub repo (they were replaced by photo JPEGs / Nunito fonts).
+# Paths are relative to the repo root (which already has a top-level crapchat/ folder).
+
+crapchat/public/assets/backgrounds/abstract-waves.svg
+crapchat/public/assets/backgrounds/arcade.svg
+crapchat/public/assets/backgrounds/bedroom.svg
+crapchat/public/assets/backgrounds/blue-sky.svg
+crapchat/public/assets/backgrounds/bookshelf.svg
+crapchat/public/assets/backgrounds/business-office.svg
+crapchat/public/assets/backgrounds/city-day.svg
+crapchat/public/assets/backgrounds/city-night.svg
+crapchat/public/assets/backgrounds/coffee-shop.svg
+crapchat/public/assets/backgrounds/conference.svg
+crapchat/public/assets/backgrounds/coworking.svg
+crapchat/public/assets/backgrounds/desert.svg
+crapchat/public/assets/backgrounds/enchanted-forest.svg
+crapchat/public/assets/backgrounds/forest.svg
+crapchat/public/assets/backgrounds/home-office.svg
+crapchat/public/assets/backgrounds/kitchen.svg
+crapchat/public/assets/backgrounds/lake.svg
+crapchat/public/assets/backgrounds/library.svg
+crapchat/public/assets/backgrounds/living-room.svg
+crapchat/public/assets/backgrounds/marble-lobby.svg
+crapchat/public/assets/backgrounds/mountains.svg
+crapchat/public/assets/backgrounds/park.svg
+crapchat/public/assets/backgrounds/rooftop.svg
+crapchat/public/assets/backgrounds/snowy-peaks.svg
+crapchat/public/assets/backgrounds/space.svg
+crapchat/public/assets/backgrounds/sunset-beach.svg
+crapchat/public/assets/backgrounds/sunset-sky.svg
+crapchat/public/assets/backgrounds/tropical-beach.svg
+crapchat/public/assets/backgrounds/underwater.svg
+crapchat/public/assets/backgrounds/zen-garden.svg
+crapchat/public/assets/fonts/bungee-latin-400.woff
+crapchat/public/assets/fonts/bungee-latin-400.woff2

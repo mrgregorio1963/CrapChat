@@ -522,7 +522,11 @@ async function boot() {
     console.warn(e);
   }
 
-  await initSegmentation();
+  // Never let the AI background model block startup (can hang on iOS/slow networks)
+  await Promise.race([
+    initSegmentation().catch((e) => console.warn(e)),
+    new Promise((r) => setTimeout(r, 6000)),
+  ]);
 
   const deep = roomIdFromUrl();
   hideSplash();
@@ -542,7 +546,9 @@ async function boot() {
   }
 }
 
+setTimeout(() => { const sp = document.getElementById('splash'); if (sp) { sp.classList.add('hide'); setTimeout(() => sp.remove(), 500); if (!document.querySelector('.view.active')) showView('home'); } }, 12000);
 boot().catch((e) => {
+  const sp = document.getElementById('splash'); if (sp) sp.remove(); showView('home');
   console.error(e);
   toast('Startup hiccup: ' + e.message, 'danger');
 });

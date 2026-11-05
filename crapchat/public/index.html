@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1" />
+  <meta name="theme-color" content="#1a1a2e" />
+  <meta name="description" content="CrapChat — video chat from the throne. Backgrounds, fart silencer, zero judgment." />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <title>CrapChat 💩</title>
+  <link rel="icon" href="/assets/icons/favicon.svg" type="image/svg+xml" />
+  <link rel="apple-touch-icon" href="/assets/icons/logo.svg" />
+  <link rel="stylesheet" href="/css/fonts.css" />
+  <link rel="stylesheet" href="/css/styles.css" />
+</head>
+<body>
+  <!-- Splash -->
+  <div id="splash" class="splash" aria-hidden="false">
+    <div class="splash-logo" aria-hidden="true">💩</div>
+    <h1 class="wordmark splash-wordmark">CrapChat</h1>
+    <p id="splash-msg" class="splash-msg">Warming the seat…</p>
+    <div class="splash-bar"><div class="splash-bar-fill"></div></div>
+  </div>
+
+  <!-- Header -->
+  <header class="app-header">
+    <div class="brand" id="brand-home" role="button" tabindex="0" title="Home">
+      <span class="brand-logo" aria-hidden="true">💩</span>
+      <span class="wordmark">CrapChat</span>
+    </div>
+    <div class="header-meta">
+      <span id="sit-timer" class="sit-timer hidden" title="Sit Time">⏱️ 00:00</span>
+      <span id="room-badge" class="room-badge hidden"></span>
+    </div>
+  </header>
+
+  <main id="app">
+    <!-- HOME -->
+    <section id="view-home" class="view active">
+      <div class="hero">
+        <div class="hero-emoji" aria-hidden="true">🚽</div>
+        <h2 class="hero-title">Video chat from the <em>throne</em></h2>
+        <p class="hero-sub">Look professional. Sound professional. Sit however you want.</p>
+      </div>
+      <div class="card stack">
+        <label class="field">
+          <span>Your name</span>
+          <input id="display-name" type="text" maxlength="32" placeholder="Anonymous Sitter" autocomplete="nickname" />
+        </label>
+        <button id="btn-create" class="btn btn-primary btn-lg">Start a Session 💩</button>
+        <div class="or">or join with a code</div>
+        <div class="join-row">
+          <input id="room-code" type="text" maxlength="12" placeholder="Room code" autocomplete="off" spellcheck="false" />
+          <button id="btn-join" class="btn btn-secondary">Join</button>
+        </div>
+      </div>
+      <p class="fineprint">Camera &amp; mic stay on your device. We only relay WebRTC signals.</p>
+    </section>
+
+    <!-- THRONE ROOM (pre-call preview) -->
+    <section id="view-throne" class="view">
+      <div class="throne-layout">
+        <div class="preview-stage">
+          <video id="local-video-raw" class="hidden" playsinline muted autoplay></video>
+          <canvas id="preview-canvas" class="preview-canvas"></canvas>
+          <div id="preview-placeholder" class="preview-placeholder">
+            <span>💩</span>
+            <p>Allow camera to enter the Throne Room</p>
+          </div>
+          <div class="preview-overlay-label">Throne Room · Preview</div>
+        </div>
+
+        <div class="throne-controls">
+          <h3 class="section-title">Pick your alibi</h3>
+          <div id="bg-categories" class="chip-row"></div>
+          <div id="bg-grid" class="bg-grid" role="listbox" aria-label="Background scenes"></div>
+
+          <div class="upload-row">
+            <label class="btn btn-ghost btn-sm" for="bg-upload">📷 Custom upload</label>
+            <input id="bg-upload" type="file" accept="image/*" class="hidden" />
+            <button id="btn-clear-custom" class="btn btn-ghost btn-sm hidden">Clear customs</button>
+          </div>
+
+          <div class="toggle-row">
+            <button id="btn-fart-silencer" class="btn btn-toggle" aria-pressed="false" title="Noise suppression">
+              🔇 Fart Silencer <span class="toggle-state">OFF</span>
+            </button>
+            <button id="btn-mute-preview" class="btn btn-toggle" aria-pressed="false">🎤 Mic <span class="toggle-state">ON</span></button>
+            <button id="btn-cam-preview" class="btn btn-toggle" aria-pressed="false">📹 Cam <span class="toggle-state">ON</span></button>
+          </div>
+
+          <div class="action-row">
+            <button id="btn-back-home" class="btn btn-ghost">← Back</button>
+            <button id="btn-enter-call" class="btn btn-primary btn-lg">Enter Call 🚽</button>
+          </div>
+          <p id="throne-hint" class="hint">Tip: “Flush” mid-call jumps to Business Office + mute. Just in case.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- CALL -->
+    <section id="view-call" class="view">
+      <div id="videos" class="videos">
+        <div id="remote-grid" class="remote-grid"></div>
+        <div class="local-pip" id="local-pip">
+          <canvas id="call-canvas" class="call-canvas"></canvas>
+          <span class="pip-label">You</span>
+        </div>
+        <div id="call-empty" class="call-empty">
+          <span>🚽</span>
+          <p>Waiting for another sitter…</p>
+          <p class="mono" id="invite-code-display"></p>
+          <button id="btn-copy-invite" class="btn btn-secondary btn-sm">Copy invite link</button>
+        </div>
+      </div>
+
+      <div id="reactions-layer" class="reactions-layer" aria-hidden="true"></div>
+
+      <div class="call-bar">
+        <button id="btn-mute" class="fab" aria-pressed="false" title="Mute">🎤</button>
+        <button id="btn-cam" class="fab" aria-pressed="false" title="Camera">📹</button>
+        <button id="btn-fart-call" class="fab fab-special" aria-pressed="false" title="Fart Silencer">🔇</button>
+        <button id="btn-flush" class="fab fab-danger" title="Emergency Flush — office + mute">🚽 Flush</button>
+        <button id="btn-react" class="fab" title="Reactions">😂</button>
+        <button id="btn-bg-call" class="fab" title="Change background">🖼️</button>
+        <button id="btn-hangup" class="fab fab-hangup" title="Hang up">📵</button>
+      </div>
+
+      <div id="react-sheet" class="sheet hidden">
+        <div class="sheet-handle"></div>
+        <div class="emoji-row">
+          <button data-emoji="💩">💩</button>
+          <button data-emoji="😂">😂</button>
+          <button data-emoji="👍">👍</button>
+          <button data-emoji="🙈">🙈</button>
+          <button data-emoji="🚽">🚽</button>
+          <button data-emoji="💨">💨</button>
+          <button data-emoji="😱">😱</button>
+          <button data-emoji="👏">👏</button>
+        </div>
+      </div>
+
+      <div id="bg-sheet" class="sheet hidden">
+        <div class="sheet-handle"></div>
+        <div id="bg-grid-call" class="bg-grid bg-grid-compact"></div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Toast stack -->
+  <div id="toasts" class="toasts" aria-live="polite"></div>
+
+  <!-- Flush overlay animation -->
+  <div id="flush-overlay" class="flush-overlay hidden" aria-hidden="true">
+    <div class="flush-swirl">🚽</div>
+    <p class="wordmark">Flushed!</p>
+  </div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script type="module" src="/js/main.js"></script>
+</body>
+</html>

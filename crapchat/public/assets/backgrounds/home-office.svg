@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="720" viewBox="0 0 1280 720">
+
+  <defs><linearGradient id="wall2" x1="0%" y1="0%" x2="0%" y2="100%">
+  <stop offset="0%" stop-color="#f5e6d3"/>
+  <stop offset="100%" stop-color="#e8d4b8"/>
+</linearGradient>
+  <linearGradient id="wood" x1="0%" y1="0%" x2="0%" y2="100%">
+  <stop offset="0%" stop-color="#c4a574"/>
+  <stop offset="100%" stop-color="#8b6914"/>
+</linearGradient></defs>
+  <rect width="100%" height="100%" fill="url(#wall2)"/>
+  <rect x="0" y="520" width="1280" height="200" fill="url(#wood)"/>
+  <rect x="100" y="80" width="300" height="400" fill="#6b4423"/>
+  <rect x="120" y="100" width="260" height="40" fill="#8b6914"/>
+  <rect x="120" y="160" width="260" height="40" fill="#8b6914"/>
+  <rect x="120" y="220" width="260" height="40" fill="#8b6914"/>
+  <rect x="120" y="280" width="260" height="40" fill="#8b6914"/>
+  <rect x="500" y="150" width="350" height="220" rx="8" fill="#2d3436"/>
+  <rect x="520" y="170" width="310" height="180" fill="#00b894"/>
+  <rect x="900" y="200" width="60" height="280" fill="#fdcb6e"/>
+  <ellipse cx="930" cy="180" rx="50" ry="40" fill="#00b894"/>
+  <ellipse cx="950" cy="160" rx="30" ry="25" fill="#55efc4"/>
+  <rect x="1050" y="100" width="150" height="200" fill="#dfe6e9" stroke="#b2bec3" stroke-width="4"/>
+  <circle cx="1125" cy="200" r="30" fill="#fd79a8"/>
+
+</svg>

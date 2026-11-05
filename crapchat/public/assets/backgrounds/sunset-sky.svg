@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="720" viewBox="0 0 1280 720">
+
+  <defs><linearGradient id="dsky" x1="0%" y1="0%" x2="0%" y2="100%">
+  <stop offset="0%" stop-color="#2d3436"/>
+  <stop offset="25%" stop-color="#6c5ce7"/>
+  <stop offset="50%" stop-color="#e17055"/>
+  <stop offset="75%" stop-color="#fdcb6e"/>
+  <stop offset="100%" stop-color="#ffeaa7"/>
+</linearGradient></defs>
+  <rect width="100%" height="100%" fill="url(#dsky)"/>
+  <circle cx="640" cy="500" r="80" fill="#fdcb6e"/>
+  <ellipse cx="200" cy="250" rx="200" ry="40" fill="#2d3436" opacity="0.4"/>
+  <ellipse cx="900" cy="180" rx="250" ry="50" fill="#2d3436" opacity="0.35"/>
+  <ellipse cx="500" cy="350" rx="180" ry="30" fill="#e17055" opacity="0.3"/>
+
+</svg>

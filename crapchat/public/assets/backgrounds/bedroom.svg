@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="720" viewBox="0 0 1280 720">
+
+  <defs><linearGradient id="bwall" x1="0%" y1="0%" x2="0%" y2="100%">
+  <stop offset="0%" stop-color="#dfe6e9"/>
+  <stop offset="100%" stop-color="#b2bec3"/>
+</linearGradient>
+  <linearGradient id="bed" x1="0%" y1="0%" x2="0%" y2="100%">
+  <stop offset="0%" stop-color="#fd79a8"/>
+  <stop offset="100%" stop-color="#e84393"/>
+</linearGradient></defs>
+  <rect width="100%" height="100%" fill="url(#bwall)"/>
+  <rect x="0" y="500" width="1280" height="220" fill="#a29bfe" opacity="0.3"/>
+  <rect x="200" y="280" width="700" height="280" rx="10" fill="url(#bed)"/>
+  <rect x="200" y="250" width="200" height="80" rx="20" fill="#ffeaa7"/>
+  <rect x="700" y="250" width="200" height="80" rx="20" fill="#ffeaa7"/>
+  <rect x="100" y="80" width="180" height="140" fill="#81ecec" opacity="0.5"/>
+  <rect x="980" y="100" width="200" height="300" fill="#636e72"/>
+  <rect x="1000" y="120" width="160" height="120" fill="#74b9ff" opacity="0.4"/>
+  <ellipse cx="1100" cy="320" rx="40" ry="50" fill="#fdcb6e"/>
+
+</svg>

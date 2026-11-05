@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="720" viewBox="0 0 1280 720">
+
+  <defs><linearGradient id="uw" x1="0%" y1="0%" x2="0%" y2="100%">
+  <stop offset="0%" stop-color="#0984e3"/>
+  <stop offset="50%" stop-color="#00cec9"/>
+  <stop offset="100%" stop-color="#006266"/>
+</linearGradient>
+  <radialGradient id="light" cx="50%" cy="0%" r="60%">
+  <stop offset="0%" stop-color="#81ecec"/>
+  <stop offset="100%" stop-color="transparent"/>
+</radialGradient></defs>
+  <rect width="100%" height="100%" fill="url(#uw)"/>
+  <circle cx="640" cy="0" r="400" fill="url(#light)" opacity="0.4"/>
+  <path d="M100,720 Q80,600 100,500 Q130,550 120,450 Q90,500 100,720" fill="#00b894" opacity="0.7"/>
+    <ellipse cx="110" cy="440" rx="40" ry="15" fill="#55efc4" opacity="0.6"/>
+    <circle cx="150" cy="300" r="4" fill="#fdcb6e" opacity="0.5"/><path d="M350,720 Q330,600 350,500 Q380,550 370,450 Q340,500 350,720" fill="#00b894" opacity="0.7"/>
+    <ellipse cx="360" cy="440" rx="40" ry="15" fill="#55efc4" opacity="0.6"/>
+    <circle cx="430" cy="350" r="5" fill="#fdcb6e" opacity="0.5"/><path d="M600,720 Q580,600 600,500 Q630,550 620,450 Q590,500 600,720" fill="#00b894" opacity="0.7"/>
+    <ellipse cx="610" cy="440" rx="40" ry="15" fill="#55efc4" opacity="0.6"/>
+    <circle cx="650" cy="400" r="6" fill="#fdcb6e" opacity="0.5"/><path d="M850,720 Q830,600 850,500 Q880,550 870,450 Q840,500 850,720" fill="#00b894" opacity="0.7"/>
+    <ellipse cx="860" cy="440" rx="40" ry="15" fill="#55efc4" opacity="0.6"/>
+    <circle cx="930" cy="450" r="7" fill="#fdcb6e" opacity="0.5"/><path d="M1100,720 Q1080,600 1100,500 Q1130,550 1120,450 Q1090,500 1100,720" fill="#00b894" opacity="0.7"/>
+    <ellipse cx="1110" cy="440" rx="40" ry="15" fill="#55efc4" opacity="0.6"/>
+    <circle cx="1150" cy="500" r="8" fill="#fdcb6e" opacity="0.5"/>
+  <ellipse cx="400" cy="300" rx="40" ry="25" fill="#fd79a8" opacity="0.6"/>
+  <ellipse cx="900" cy="400" rx="50" ry="30" fill="#a29bfe" opacity="0.5"/>
+  <circle cx="150" cy="100" r="3" fill="white" opacity="0.3"/><circle cx="300" cy="130" r="4" fill="white" opacity="0.3"/><circle cx="450" cy="160" r="5" fill="white" opacity="0.3"/><circle cx="600" cy="190" r="3" fill="white" opacity="0.3"/><circle cx="750" cy="220" r="4" fill="white" opacity="0.3"/><circle cx="900" cy="250" r="5" fill="white" opacity="0.3"/><circle cx="1050" cy="280" r="3" fill="white" opacity="0.3"/><circle cx="1200" cy="310" r="4" fill="white" opacity="0.3"/>
+
+</svg>

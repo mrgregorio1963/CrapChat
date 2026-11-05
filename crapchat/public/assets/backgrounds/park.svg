@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="720" viewBox="0 0 1280 720">
+
+  <defs><linearGradient id="psky" x1="0%" y1="0%" x2="0%" y2="100%">
+  <stop offset="0%" stop-color="#74b9ff"/>
+  <stop offset="100%" stop-color="#81ecec"/>
+</linearGradient>
+  <linearGradient id="grass" x1="0%" y1="0%" x2="0%" y2="100%">
+  <stop offset="0%" stop-color="#00b894"/>
+  <stop offset="100%" stop-color="#26de81"/>
+</linearGradient></defs>
+  <rect width="100%" height="400" fill="url(#psky)"/>
+  <circle cx="1100" cy="100" r="55" fill="#fdcb6e"/>
+  <rect y="400" width="1280" height="320" fill="url(#grass)"/>
+  <rect x="200" y="250" width="40" height="200" fill="#6b4423"/>
+  <ellipse cx="220" cy="220" rx="100" ry="80" fill="#00b894"/>
+  <ellipse cx="180" cy="200" rx="70" ry="60" fill="#55efc4"/>
+  <rect x="900" y="280" width="35" height="170" fill="#6b4423"/>
+  <ellipse cx="917" cy="250" rx="90" ry="70" fill="#00cec9"/>
+  <ellipse cx="640" cy="500" rx="120" ry="40" fill="#e17055" opacity="0.6"/>
+  <ellipse cx="640" cy="490" rx="80" ry="25" fill="#fdcb6e" opacity="0.5"/>
+  <ellipse cx="400" cy="150" rx="80" ry="30" fill="white" opacity="0.8"/>
+  <ellipse cx="700" cy="100" rx="100" ry="35" fill="white" opacity="0.7"/>
+
+</svg>

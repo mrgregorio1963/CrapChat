@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="720" viewBox="0 0 1280 720">
+
+  <defs><linearGradient id="arcbg" x1="0%" y1="0%" x2="0%" y2="100%">
+  <stop offset="0%" stop-color="#2d3436"/>
+  <stop offset="100%" stop-color="#000000"/>
+</linearGradient></defs>
+  <rect width="100%" height="100%" fill="url(#arcbg)"/>
+  <rect x="100" y="200" width="220" height="400" rx="10" fill="#1a1a2e"/>
+    <rect x="120" y="220" width="180" height="140" fill="#e17055" opacity="0.8"/>
+    <rect x="160" y="400" width="40" height="40" rx="20" fill="#e17055"/>
+    <rect x="220" y="400" width="40" height="40" rx="20" fill="#6c5ce7"/>
+    <rect x="140" y="480" width="140" height="20" fill="#636e72" rx="4"/>
+    <text x="210" y="300" text-anchor="middle" fill="white" font-family="monospace" font-size="20">INSERT</text>
+    <text x="210" y="325" text-anchor="middle" fill="white" font-family="monospace" font-size="20">COIN</text><rect x="400" y="200" width="220" height="400" rx="10" fill="#1a1a2e"/>
+    <rect x="420" y="220" width="180" height="140" fill="#6c5ce7" opacity="0.8"/>
+    <rect x="460" y="400" width="40" height="40" rx="20" fill="#6c5ce7"/>
+    <rect x="520" y="400" width="40" height="40" rx="20" fill="#00b894"/>
+    <rect x="440" y="480" width="140" height="20" fill="#636e72" rx="4"/>
+    <text x="510" y="300" text-anchor="middle" fill="white" font-family="monospace" font-size="20">INSERT</text>
+    <text x="510" y="325" text-anchor="middle" fill="white" font-family="monospace" font-size="20">COIN</text><rect x="700" y="200" width="220" height="400" rx="10" fill="#1a1a2e"/>
+    <rect x="720" y="220" width="180" height="140" fill="#00b894" opacity="0.8"/>
+    <rect x="760" y="400" width="40" height="40" rx="20" fill="#00b894"/>
+    <rect x="820" y="400" width="40" height="40" rx="20" fill="#fdcb6e"/>
+    <rect x="740" y="480" width="140" height="20" fill="#636e72" rx="4"/>
+    <text x="810" y="300" text-anchor="middle" fill="white" font-family="monospace" font-size="20">INSERT</text>
+    <text x="810" y="325" text-anchor="middle" fill="white" font-family="monospace" font-size="20">COIN</text><rect x="1000" y="200" width="220" height="400" rx="10" fill="#1a1a2e"/>
+    <rect x="1020" y="220" width="180" height="140" fill="#fdcb6e" opacity="0.8"/>
+    <rect x="1060" y="400" width="40" height="40" rx="20" fill="#fdcb6e"/>
+    <rect x="1120" y="400" width="40" height="40" rx="20" fill="#e17055"/>
+    <rect x="1040" y="480" width="140" height="20" fill="#636e72" rx="4"/>
+    <text x="1110" y="300" text-anchor="middle" fill="white" font-family="monospace" font-size="20">INSERT</text>
+    <text x="1110" y="325" text-anchor="middle" fill="white" font-family="monospace" font-size="20">COIN</text>
+  <circle cx="0" cy="20" r="2" fill="#e17055" opacity="0.6"/><circle cx="64" cy="33" r="2" fill="#6c5ce7" opacity="0.6"/><circle cx="128" cy="46" r="2" fill="#00b894" opacity="0.6"/><circle cx="192" cy="59" r="2" fill="#fdcb6e" opacity="0.6"/><circle cx="256" cy="72" r="2" fill="#e17055" opacity="0.6"/><circle cx="320" cy="85" r="2" fill="#6c5ce7" opacity="0.6"/><circle cx="384" cy="98" r="2" fill="#00b894" opacity="0.6"/><circle cx="448" cy="31" r="2" fill="#fdcb6e" opacity="0.6"/><circle cx="512" cy="44" r="2" fill="#e17055" opacity="0.6"/><circle cx="576" cy="57" r="2" fill="#6c5ce7" opacity="0.6"/><circle cx="640" cy="70" r="2" fill="#00b894" opacity="0.6"/><circle cx="704" cy="83" r="2" fill="#fdcb6e" opacity="0.6"/><circle cx="768" cy="96" r="2" fill="#e17055" opacity="0.6"/><circle cx="832" cy="29" r="2" fill="#6c5ce7" opacity="0.6"/><circle cx="896" cy="42" r="2" fill="#00b894" opacity="0.6"/><circle cx="960" cy="55" r="2" fill="#fdcb6e" opacity="0.6"/><circle cx="1024" cy="68" r="2" fill="#e17055" opacity="0.6"/><circle cx="1088" cy="81" r="2" fill="#6c5ce7" opacity="0.6"/><circle cx="1152" cy="94" r="2" fill="#00b894" opacity="0.6"/><circle cx="1216" cy="27" r="2" fill="#fdcb6e" opacity="0.6"/>
+
+</svg>

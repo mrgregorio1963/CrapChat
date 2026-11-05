@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="720" viewBox="0 0 1280 720">
+
+  <defs><linearGradient id="mlwall" x1="0%" y1="0%" x2="0%" y2="100%">
+  <stop offset="0%" stop-color="#f8f9fa"/>
+  <stop offset="100%" stop-color="#e9ecef"/>
+</linearGradient>
+  <linearGradient id="marble" x1="0%" y1="0%" x2="0%" y2="100%">
+  <stop offset="0%" stop-color="#ffffff"/>
+  <stop offset="50%" stop-color="#f1f3f5"/>
+  <stop offset="100%" stop-color="#e9ecef"/>
+</linearGradient></defs>
+  <rect width="100%" height="100%" fill="url(#mlwall)"/>
+  <rect x="0" y="500" width="1280" height="220" fill="url(#marble)"/>
+  <path d="M0,520 Q200,510 400,530 T800,515 T1280,525" fill="none" stroke="#ced4da" stroke-width="2"/>
+  <path d="M0,580 Q300,560 600,590 T1280,570" fill="none" stroke="#adb5bd" stroke-width="1.5"/>
+  <rect x="500" y="100" width="280" height="400" fill="#dee2e6"/>
+  <rect x="520" y="120" width="240" height="360" fill="#74b9ff" opacity="0.15"/>
+  <rect x="100" y="150" width="150" height="250" fill="#adb5bd" opacity="0.4"/>
+  <rect x="1030" y="150" width="150" height="250" fill="#adb5bd" opacity="0.4"/>
+  <circle cx="640" cy="80" r="40" fill="#fdcb6e" opacity="0.6"/>
+  <rect x="200" y="400" width="100" height="100" fill="#636e72" opacity="0.3" rx="8"/>
+  <ellipse cx="250" cy="380" rx="40" ry="30" fill="#00b894" opacity="0.5"/>
+  <rect x="980" y="400" width="100" height="100" fill="#636e72" opacity="0.3" rx="8"/>
+  <ellipse cx="1030" cy="380" rx="40" ry="30" fill="#e17055" opacity="0.5"/>
+
+</svg>

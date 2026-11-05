@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="720" viewBox="0 0 1280 720">
+
+  <defs><linearGradient id="lrwall" x1="0%" y1="0%" x2="0%" y2="100%">
+  <stop offset="0%" stop-color="#fff5ee"/>
+  <stop offset="100%" stop-color="#ffe4d4"/>
+</linearGradient>
+  <linearGradient id="sofa" x1="0%" y1="0%" x2="0%" y2="100%">
+  <stop offset="0%" stop-color="#6c5ce7"/>
+  <stop offset="100%" stop-color="#4834d4"/>
+</linearGradient></defs>
+  <rect width="100%" height="100%" fill="url(#lrwall)"/>
+  <rect x="0" y="450" width="1280" height="270" fill="#d4a574"/>
+  <rect x="150" y="280" width="600" height="220" rx="20" fill="url(#sofa)"/>
+  <rect x="150" y="280" width="150" height="120" rx="15" fill="#5f4cd1"/>
+  <rect x="600" y="280" width="150" height="120" rx="15" fill="#5f4cd1"/>
+  <rect x="800" y="150" width="350" height="220" rx="8" fill="#2d3436"/>
+  <rect x="820" y="170" width="310" height="180" fill="#0984e3"/>
+  <rect x="100" y="100" width="200" height="150" fill="#e17055" opacity="0.6"/>
+  <rect x="120" y="120" width="160" height="110" fill="#fab1a0"/>
+  <ellipse cx="400" cy="500" rx="80" ry="20" fill="#a29bfe" opacity="0.5"/>
+  <rect x="50" y="400" width="80" height="100" fill="#636e72"/>
+  <ellipse cx="90" cy="380" rx="40" ry="30" fill="#00b894"/>
+
+</svg>

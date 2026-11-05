@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="720" viewBox="0 0 1280 720">
+
+  <defs><linearGradient id="ssky" x1="0%" y1="0%" x2="0%" y2="100%">
+  <stop offset="0%" stop-color="#2d3436"/>
+  <stop offset="30%" stop-color="#e17055"/>
+  <stop offset="60%" stop-color="#fdcb6e"/>
+  <stop offset="100%" stop-color="#fd79a8"/>
+</linearGradient>
+  <linearGradient id="socean" x1="0%" y1="0%" x2="0%" y2="100%">
+  <stop offset="0%" stop-color="#e17055"/>
+  <stop offset="100%" stop-color="#6c5ce7"/>
+</linearGradient>
+  <linearGradient id="ssand" x1="0%" y1="0%" x2="0%" y2="100%">
+  <stop offset="0%" stop-color="#dfe6e9"/>
+  <stop offset="100%" stop-color="#b2bec3"/>
+</linearGradient></defs>
+  <rect width="100%" height="380" fill="url(#ssky)"/>
+  <circle cx="640" cy="300" r="70" fill="#fdcb6e"/>
+  <rect y="380" width="1280" height="160" fill="url(#socean)"/>
+  <rect y="540" width="1280" height="180" fill="url(#ssand)"/>
+  <ellipse cx="300" cy="420" rx="100" ry="8" fill="#fdcb6e" opacity="0.4"/>
+  <ellipse cx="900" cy="450" rx="80" ry="6" fill="#ffeaa7" opacity="0.3"/>
+
+</svg>

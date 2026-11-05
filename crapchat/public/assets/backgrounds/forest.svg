@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="720" viewBox="0 0 1280 720">
+
+  <defs><linearGradient id="fsky" x1="0%" y1="0%" x2="0%" y2="100%">
+  <stop offset="0%" stop-color="#55efc4"/>
+  <stop offset="100%" stop-color="#00b894"/>
+</linearGradient></defs>
+  <rect width="100%" height="100%" fill="url(#fsky)"/>
+  <rect x="90" y="570" width="30" height="150" fill="#6b4423"/>
+    <polygon points="50,620 105,420 160,620" fill="#00b894"/>
+    <polygon points="60,700 105,520 150,700" fill="#00b894" opacity="0.8"/><rect x="220" y="490" width="30" height="230" fill="#6b4423"/>
+    <polygon points="180,540 235,340 290,540" fill="#00cec9"/>
+    <polygon points="190,620 235,440 280,620" fill="#00cec9" opacity="0.8"/><rect x="350" y="410" width="30" height="310" fill="#6b4423"/>
+    <polygon points="310,460 365,260 420,460" fill="#55efc4"/>
+    <polygon points="320,540 365,360 410,540" fill="#55efc4" opacity="0.8"/><rect x="480" y="570" width="30" height="150" fill="#6b4423"/>
+    <polygon points="440,620 495,420 550,620" fill="#26de81"/>
+    <polygon points="450,700 495,520 540,700" fill="#26de81" opacity="0.8"/><rect x="610" y="490" width="30" height="230" fill="#6b4423"/>
+    <polygon points="570,540 625,340 680,540" fill="#00b894"/>
+    <polygon points="580,620 625,440 670,620" fill="#00b894" opacity="0.8"/><rect x="740" y="410" width="30" height="310" fill="#6b4423"/>
+    <polygon points="700,460 755,260 810,460" fill="#00cec9"/>
+    <polygon points="710,540 755,360 800,540" fill="#00cec9" opacity="0.8"/><rect x="870" y="570" width="30" height="150" fill="#6b4423"/>
+    <polygon points="830,620 885,420 940,620" fill="#55efc4"/>
+    <polygon points="840,700 885,520 930,700" fill="#55efc4" opacity="0.8"/><rect x="1000" y="490" width="30" height="230" fill="#6b4423"/>
+    <polygon points="960,540 1015,340 1070,540" fill="#26de81"/>
+    <polygon points="970,620 1015,440 1060,620" fill="#26de81" opacity="0.8"/><rect x="1130" y="410" width="30" height="310" fill="#6b4423"/>
+    <polygon points="1090,460 1145,260 1200,460" fill="#00b894"/>
+    <polygon points="1100,540 1145,360 1190,540" fill="#00b894" opacity="0.8"/><rect x="1260" y="570" width="30" height="150" fill="#6b4423"/>
+    <polygon points="1220,620 1275,420 1330,620" fill="#00cec9"/>
+    <polygon points="1230,700 1275,520 1320,700" fill="#00cec9" opacity="0.8"/>
+  <rect y="650" width="1280" height="70" fill="#6b4423" opacity="0.5"/>
+
+</svg>

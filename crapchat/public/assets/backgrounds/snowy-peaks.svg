@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="720" viewBox="0 0 1280 720">
+
+  <defs><linearGradient id="ssky2" x1="0%" y1="0%" x2="0%" y2="100%">
+  <stop offset="0%" stop-color="#2d3436"/>
+  <stop offset="50%" stop-color="#636e72"/>
+  <stop offset="100%" stop-color="#b2bec3"/>
+</linearGradient></defs>
+  <rect width="100%" height="100%" fill="url(#ssky2)"/>
+  <polygon points="0,720 100,300 300,500 450,150 600,400 800,80 1000,350 1150,200 1280,400 1280,720" fill="#dfe6e9"/>
+  <polygon points="450,150 520,280 380,280" fill="white"/>
+  <polygon points="800,80 880,220 720,220" fill="white"/>
+  <polygon points="1150,200 1200,300 1100,300" fill="white"/>
+  <ellipse cx="640" cy="100" rx="80" ry="20" fill="white" opacity="0.5"/>
+
+</svg>

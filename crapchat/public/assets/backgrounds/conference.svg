@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="720" viewBox="0 0 1280 720">
+
+  <defs><linearGradient id="confwall" x1="0%" y1="0%" x2="0%" y2="100%">
+  <stop offset="0%" stop-color="#dfe6e9"/>
+  <stop offset="100%" stop-color="#b2bec3"/>
+</linearGradient></defs>
+  <rect width="100%" height="100%" fill="url(#confwall)"/>
+  <rect x="200" y="350" width="880" height="40" fill="#2d3436" rx="4"/>
+  <rect x="220" y="300" width="840" height="50" fill="#636e72" rx="4"/>
+  <rect x="250" y="400" width="50" height="60" fill="#2d3436" rx="4"/>
+  <circle cx="275" cy="480" r="20" fill="#636e72"/><rect x="390" y="400" width="50" height="60" fill="#2d3436" rx="4"/>
+  <circle cx="415" cy="480" r="20" fill="#636e72"/><rect x="530" y="400" width="50" height="60" fill="#2d3436" rx="4"/>
+  <circle cx="555" cy="480" r="20" fill="#636e72"/><rect x="670" y="400" width="50" height="60" fill="#2d3436" rx="4"/>
+  <circle cx="695" cy="480" r="20" fill="#636e72"/><rect x="810" y="400" width="50" height="60" fill="#2d3436" rx="4"/>
+  <circle cx="835" cy="480" r="20" fill="#636e72"/><rect x="950" y="400" width="50" height="60" fill="#2d3436" rx="4"/>
+  <circle cx="975" cy="480" r="20" fill="#636e72"/>
+  <rect x="400" y="80" width="480" height="200" rx="8" fill="#2d3436"/>
+  <rect x="420" y="100" width="440" height="160" fill="#0984e3"/>
+  <text x="640" y="190" text-anchor="middle" fill="white" font-family="sans-serif" font-size="28">STRATEGY 2026</text>
+  <rect x="50" y="100" width="120" height="180" fill="#74b9ff" opacity="0.3"/>
+  <rect x="1110" y="100" width="120" height="180" fill="#74b9ff" opacity="0.3"/>
+
+</svg>

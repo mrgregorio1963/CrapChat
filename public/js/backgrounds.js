@@ -7,7 +7,7 @@ import {
   clearCustomBackgrounds,
   getSelectedBgId,
   setSelectedBgId,
-} from './storage.js?v=6';
+} from './storage.js?v=8';
 
 let manifestScenes = [];
 /** @type {Map<string, HTMLImageElement|HTMLCanvasElement>} */

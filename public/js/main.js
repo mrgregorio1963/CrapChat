@@ -1,7 +1,7 @@
 /**
  * CrapChat app entry — Throne Room, call, flush, silencer, reactions.
  */
-import { SPLASH_MESSAGES, TOASTS, pick } from './humor.js?v=6';
+import { SPLASH_MESSAGES, TOASTS, pick } from './humor.js?v=8';
 import {
   initBackground,
   getAllScenes,
@@ -10,14 +10,14 @@ import {
   removeAllCustoms,
   CATEGORIES,
   getCurrentBackgroundId,
-} from './backgrounds.js?v=6';
+} from './backgrounds.js?v=8';
 import {
   getSavedName,
   setSavedName,
   getSilencerPref,
   setSilencerPref,
-} from './storage.js?v=6';
-import { initSegmentation, forceFallback, startCompositor, stopCompositor, getCompositorStream } from './segmentation.js?v=6';
+} from './storage.js?v=8';
+import { initSegmentation, forceFallback, onSegmentationMode, startCompositor, stopCompositor, getCompositorStream } from './segmentation.js?v=8';
 import {
   getMicStream,
   setSilencer,
@@ -25,10 +25,10 @@ import {
   stopAudio,
   getAudioOutboundStream,
   setFlushAutoDetect,
-} from './audio.js?v=6';
-import { CallSession } from './webrtc.js?v=6';
-import { playFlushSound, playPop, playToggle } from './sounds.js?v=6';
-import { createHoldMusicStream, stopHoldMusic } from './holdmusic.js?v=6';
+} from './audio.js?v=8';
+import { CallSession } from './webrtc.js?v=8';
+import { playFlushSound, playPop, playToggle } from './sounds.js?v=8';
+import { createHoldMusicStream, stopHoldMusic } from './holdmusic.js?v=8';
 
 const $ = (sel) => document.querySelector(sel);
 const $$ = (sel) => [...document.querySelectorAll(sel)];
@@ -598,9 +598,16 @@ async function boot() {
   }
 
   // Never let the AI background model block startup (can hang on iOS/slow networks)
+  onSegmentationMode(({ fallback }) => {
+    const badge = document.getElementById('basic-mode-badge');
+    if (!badge) return;
+    badge.classList.toggle('hidden', !fallback);
+  });
+
+  // Give slow phones time to load self-hosted MediaPipe before falling back
   const segResult = await Promise.race([
     initSegmentation().catch((e) => { console.warn(e); return false; }),
-    new Promise((r) => setTimeout(() => r('timeout'), 6000)),
+    new Promise((r) => setTimeout(() => r('timeout'), 15000)),
   ]);
   if (segResult === 'timeout') forceFallback();
 

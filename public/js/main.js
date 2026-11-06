@@ -1,7 +1,7 @@
 /**
  * CrapChat app entry — Throne Room, call, flush, silencer, reactions.
  */
-import { SPLASH_MESSAGES, TOASTS, pick } from './humor.js';
+import { SPLASH_MESSAGES, TOASTS, pick } from './humor.js?v=6';
 import {
   initBackground,
   getAllScenes,
@@ -10,14 +10,14 @@ import {
   removeAllCustoms,
   CATEGORIES,
   getCurrentBackgroundId,
-} from './backgrounds.js';
+} from './backgrounds.js?v=6';
 import {
   getSavedName,
   setSavedName,
   getSilencerPref,
   setSilencerPref,
-} from './storage.js';
-import { initSegmentation, startCompositor, stopCompositor, getCompositorStream } from './segmentation.js';
+} from './storage.js?v=6';
+import { initSegmentation, forceFallback, startCompositor, stopCompositor, getCompositorStream } from './segmentation.js?v=6';
 import {
   getMicStream,
   setSilencer,
@@ -25,10 +25,10 @@ import {
   stopAudio,
   getAudioOutboundStream,
   setFlushAutoDetect,
-} from './audio.js';
-import { CallSession } from './webrtc.js';
-import { playFlushSound, playPop, playToggle } from './sounds.js';
-import { createHoldMusicStream, stopHoldMusic } from './holdmusic.js';
+} from './audio.js?v=6';
+import { CallSession } from './webrtc.js?v=6';
+import { playFlushSound, playPop, playToggle } from './sounds.js?v=6';
+import { createHoldMusicStream, stopHoldMusic } from './holdmusic.js?v=6';
 
 const $ = (sel) => document.querySelector(sel);
 const $$ = (sel) => [...document.querySelectorAll(sel)];
@@ -598,10 +598,11 @@ async function boot() {
   }
 
   // Never let the AI background model block startup (can hang on iOS/slow networks)
-  await Promise.race([
-    initSegmentation().catch((e) => console.warn(e)),
-    new Promise((r) => setTimeout(r, 6000)),
+  const segResult = await Promise.race([
+    initSegmentation().catch((e) => { console.warn(e); return false; }),
+    new Promise((r) => setTimeout(() => r('timeout'), 6000)),
   ]);
+  if (segResult === 'timeout') forceFallback();
 
   const deep = roomIdFromUrl();
   hideSplash();

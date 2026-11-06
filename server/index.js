@@ -17,7 +17,23 @@ const io = new Server(server, {
   transports: ['websocket', 'polling'],
 });
 
-app.use(express.static(path.join(__dirname, '../public')));
+// Prevent phones (esp. iOS home-screen / Safari) from keeping stale JS/CSS modules
+app.use((req, res, next) => {
+  if (req.method === 'GET' || req.method === 'HEAD') {
+    const pth = req.path || '';
+    if (
+      pth === '/' ||
+      pth.startsWith('/room/') ||
+      /\.(js|mjs|css|json|html|svg)$/i.test(pth)
+    ) {
+      res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0');
+      res.setHeader('Pragma', 'no-cache');
+      res.setHeader('Expires', '0');
+    }
+  }
+  next();
+});
+app.use(express.static(path.join(__dirname, '../public'), { etag: true, lastModified: true, maxAge: 0 }));
 app.use(express.json());
 
 /** @type {Map<string, { id: string, peers: Map<string, { name: string, socketId: string }> }>} */

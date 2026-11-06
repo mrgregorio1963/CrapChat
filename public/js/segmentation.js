@@ -3,19 +3,20 @@
  * Canvas matches the camera's actual videoWidth/videoHeight so faces aren't stretched.
  *
  * Mask pipeline (MediaPipe):
- *  1) temporal EMA of the segmentation mask (kills flicker)
- *  2) slight blur = soft dilation so hair/head edges aren't eaten
- *  3) contrast/threshold so the person interior is fully opaque
+ *  1) temporal EMA of the confidence mask (kills edge flicker)
+ *  2) hard threshold — anything above ~0.25 confidence becomes person
+ *  3) morphological close (dilate then erode) fills face holes, trims fringe
  *  4) tiny feather blur only at the silhouette edge
  *
- * MediaPipe's mask lives in the ALPHA channel. destination-in reads source alpha,
- * so every refine step must keep person confidence in alpha (not RGB-only).
+ * MediaPipe mask may live in ALPHA and/or RGB; we read both. destination-in
+ * uses source alpha, so the finished mask is white RGB with person in A.
  */
-import { drawBackgroundCover, getCurrentBackgroundImage } from './backgrounds.js';
+import { drawBackgroundCover, getCurrentBackgroundImage } from './backgrounds.js?v=6';
 
 let selfieSegmentation = null;
 let ready = false;
 let useFallback = false;
+let fallbackLocked = false;
 let videoEl = null;
 let canvas = null;
 let ctx = null;
@@ -23,44 +24,61 @@ let running = false;
 let rafId = null;
 let outputStream = null;
 let lastProcess = 0;
+let lastResultsAt = 0;
 const PROCESS_EVERY_MS = 33;
 let canvasW = 640;
 let canvasH = 480;
 let resizeObserver = null;
 
-/** Raw mask from MediaPipe this frame. */
 let rawMaskCanvas = null;
 let rawMaskCtx = null;
-/** Temporally smoothed mask (persists across frames). */
 let smoothMaskCanvas = null;
 let smoothMaskCtx = null;
-/** Work buffer for blur / threshold / feather. */
 let workMaskCanvas = null;
 let workMaskCtx = null;
-/** Person cutout composite buffer (reused, not recreated each frame). */
 let personCanvas = null;
 let personCtx = null;
-/** Whether smoothMask has a valid previous frame. */
 let hasSmoothMask = false;
 
-/** Weight on the previous mask (0.6–0.7). Higher = less flicker, more lag. */
-const TEMPORAL_PREV = 0.68;
-/** Mask values at/below this become fully transparent after contrast. */
-const MASK_LO = 70;
-/** Mask values at/above this become fully opaque after contrast. */
-const MASK_HI = 165;
-/** Blur radius (px) used as soft dilation before thresholding. */
-const DILATE_BLUR_PX = 3;
-/** Feather blur (px) applied after thresholding for soft silhouette edge. */
-const FEATHER_BLUR_PX = 2;
+/** Weight on previous mask. High = less flicker, a bit more lag. */
+const TEMPORAL_PREV = 0.55;
+/** Confidence below this → background. ~0.25 of 255. */
+const MASK_LO = 64;
+/** Blur radius for morphological close (dilate then erode). */
+const CLOSE_BLUR_PX = 5;
+/** After dilate blur, alphas at/above this become person. */
+const DILATE_KEEP = 80;
+/** After erode blur, alphas at/above this stay person (shrinks fringe). */
+const ERODE_KEEP = 200;
+/** Feather blur (px) for soft silhouette only. */
+const FEATHER_BLUR_PX = 1.25;
+/** If MediaPipe stops delivering results, fall back. */
+const RESULTS_WATCHDOG_MS = 2500;
 
 export function isSegmentationReady() {
   return ready;
 }
 
+export function isUsingFallback() {
+  return useFallback || !selfieSegmentation;
+}
+
+/** Lock soft-matte path (e.g. init timed out on iOS). */
+export function forceFallback() {
+  fallbackLocked = true;
+  useFallback = true;
+  ready = true;
+  console.warn('[CrapChat] Forced soft-matte fallback');
+}
+
 export async function initSegmentation() {
   try {
     await loadScript('https://cdn.jsdelivr.net/npm/@mediapipe/selfie_segmentation/selfie_segmentation.js');
+    if (fallbackLocked) {
+      ready = true;
+      useFallback = true;
+      return false;
+    }
     const SS = window.SelfieSegmentation;
     if (!SS) throw new Error('SelfieSegmentation global missing');
 
@@ -68,12 +86,16 @@ export async function initSegmentation() {
       locateFile: (file) =>
         `https://cdn.jsdelivr.net/npm/@mediapipe/selfie_segmentation/${file}`,
     });
-    // modelSelection: 1 = general/landscape model — more stable for upper-body / head
     selfieSegmentation.setOptions({
       modelSelection: 1,
       selfieMode: true,
     });
     await selfieSegmentation.initialize?.();
+    if (fallbackLocked) {
+      ready = true;
+      useFallback = true;
+      return false;
+    }
     ready = true;
     useFallback = false;
     console.log('[CrapChat] MediaPipe Selfie Segmentation ready');
@@ -127,7 +149,6 @@ function ensureAuxCanvases(vw, vh) {
   }
 }
 
-/** Sync internal canvas size to the live camera frame (handles orientation). */
 function syncCanvasToVideo() {
   if (!videoEl || !canvas) return false;
   const vw = videoEl.videoWidth || 0;
@@ -141,7 +162,6 @@ function syncCanvasToVideo() {
   canvas.width = vw;
   canvas.height = vh;
   ensureAuxCanvases(vw, vh);
-  // Hint CSS aspect via style so object-fit has the right intrinsic ratio
   canvas.style.aspectRatio = `${vw} / ${vh}`;
   hasSmoothMask = false;
   return true;
@@ -153,6 +173,7 @@ export function startCompositor(video, outCanvas) {
   ctx = canvas.getContext('2d', { willReadFrequently: true });
   running = true;
   hasSmoothMask = false;
+  lastResultsAt = performance.now();
   syncCanvasToVideo();
 
   const onMeta = () => syncCanvasToVideo();
@@ -164,7 +185,9 @@ export function startCompositor(video, outCanvas) {
     try { resizeObserver.observe(videoEl); } catch (_) {}
   }
 
-  if (useFallback || !selfieSegmentation) {
+  const mpOk = ready && !useFallback && !fallbackLocked && selfieSegmentation;
+  if (!mpOk) {
+    useFallback = true;
     loopFallback();
   } else {
     selfieSegmentation.onResults(onResults);
@@ -194,30 +217,57 @@ export function stopCompositor() {
   hasSmoothMask = false;
 }
 
+function switchToFallback(reason) {
+  if (useFallback) return;
+  console.warn('[CrapChat] Switching to soft-matte:', reason);
+  useFallback = true;
+  if (rafId) cancelAnimationFrame(rafId);
+  rafId = null;
+  loopFallback();
+}
+
 function loopMediapipe() {
   const tick = async () => {
     if (!running) return;
     rafId = requestAnimationFrame(tick);
+    if (useFallback) return;
     if (!videoEl || videoEl.readyState < 2) return;
+    if (performance.now() - lastResultsAt > RESULTS_WATCHDOG_MS) {
+      switchToFallback('no MediaPipe results');
+      return;
+    }
     syncCanvasToVideo();
     const t = performance.now();
     if (t - lastProcess < PROCESS_EVERY_MS) return;
     lastProcess = t;
     try {
       await selfieSegmentation.send({ image: videoEl });
-    } catch (_) {}
+    } catch (e) {
+      switchToFallback(e?.message || 'send failed');
+    }
   };
   rafId = requestAnimationFrame(tick);
 }
 
+/** Read person confidence 0–255 from either alpha-mask or RGB-mask layouts. */
+function readConfidence(d, i) {
+  const a = d[i + 3];
+  const luma = (d[i] + d[i + 1] + d[i + 2]) / 3;
+  // Alpha mask: RGB ~255, A = confidence. RGB mask: A ~255, RGB = confidence.
+  if (a < 250 && luma >= 250) return a;
+  if (luma < 250 && a >= 250) return luma;
+  return Math.max(a, luma);
+}
+
 /**
- * Temporal EMA + dilate + threshold + feather.
- * Writes the finished ALPHA mask into workMaskCanvas (RGB white, A = person).
+ * Temporal EMA + morphological close (dilate→erode) + light feather.
+ * Close fills face holes without leaving a thick original-bg halo.
+ * Finished mask: RGB white, A = person (fully opaque interior).
  */
 function refineMask(W, H) {
   ensureAuxCanvases(W, H);
 
-  // 1) Temporal blend: out = new*(1-α) + prev*α  via source-over
+  // 1) Temporal EMA on the raw confidence mask
   if (!hasSmoothMask) {
     smoothMaskCtx.globalAlpha = 1;
     smoothMaskCtx.globalCompositeOperation = 'source-over';
@@ -231,47 +281,66 @@ function refineMask(W, H) {
     smoothMaskCtx.globalAlpha = 1;
   }
 
-  // 2) Soft dilation: blur expands person regions (alpha) so hair/head aren't eaten
-  workMaskCtx.save();
-  workMaskCtx.clearRect(0, 0, W, H);
-  workMaskCtx.filter = `blur(${DILATE_BLUR_PX}px)`;
-  workMaskCtx.drawImage(smoothMaskCanvas, 0, 0);
-  workMaskCtx.filter = 'none';
-  workMaskCtx.restore();
-
-  // 3) Contrast / threshold — person interior snaps to fully opaque ALPHA
-  // MediaPipe stores the mask in alpha (RGB is often 255). destination-in uses alpha.
-  const img = workMaskCtx.getImageData(0, 0, W, H);
-  const d = img.data;
-  const span = MASK_HI - MASK_LO || 1;
+  // 2) Conservative binary from confidence (anything >~0.25 = person)
+  let img = smoothMaskCtx.getImageData(0, 0, W, H);
+  let d = img.data;
   for (let i = 0; i < d.length; i += 4) {
-    // Prefer alpha; fall back to luma if a browser put the mask in RGB only.
-    let v = d[i + 3];
-    if (v === 255) {
-      const luma = (d[i] + d[i + 1] + d[i + 2]) / 3;
-      if (luma < 250) v = luma;
-    }
-    if (v <= MASK_LO) v = 0;
-    else if (v >= MASK_HI) v = 255;
-    else v = ((v - MASK_LO) / span) * 255;
+    const v = readConfidence(d, i) >= MASK_LO ? 255 : 0;
     d[i] = d[i + 1] = d[i + 2] = 255;
     d[i + 3] = v;
   }
   workMaskCtx.putImageData(img, 0, 0);
 
-  // 4) Tiny feather only at the silhouette edge (blurs alpha)
+  // 3) Dilate: blur + low threshold → expands and fills interior holes
+  rawMaskCtx.clearRect(0, 0, W, H);
+  rawMaskCtx.filter = `blur(${CLOSE_BLUR_PX}px)`;
+  rawMaskCtx.drawImage(workMaskCanvas, 0, 0);
+  rawMaskCtx.filter = 'none';
+  img = rawMaskCtx.getImageData(0, 0, W, H);
+  d = img.data;
+  for (let i = 0; i < d.length; i += 4) {
+    const v = d[i + 3] >= DILATE_KEEP ? 255 : 0;
+    d[i] = d[i + 1] = d[i + 2] = 255;
+    d[i + 3] = v;
+  }
+  workMaskCtx.putImageData(img, 0, 0);
+
+  // 4) Erode: blur + high threshold → shrinks fringe back (keeps filled holes)
+  rawMaskCtx.clearRect(0, 0, W, H);
+  rawMaskCtx.filter = `blur(${CLOSE_BLUR_PX}px)`;
+  rawMaskCtx.drawImage(workMaskCanvas, 0, 0);
+  rawMaskCtx.filter = 'none';
+  img = rawMaskCtx.getImageData(0, 0, W, H);
+  d = img.data;
+  for (let i = 0; i < d.length; i += 4) {
+    const v = d[i + 3] >= ERODE_KEEP ? 255 : 0;
+    d[i] = d[i + 1] = d[i + 2] = 255;
+    d[i + 3] = v;
+  }
+  workMaskCtx.putImageData(img, 0, 0);
+
+  // 5) Tiny edge feather; re-clamp interior to fully opaque
   if (FEATHER_BLUR_PX > 0) {
     rawMaskCtx.clearRect(0, 0, W, H);
     rawMaskCtx.filter = `blur(${FEATHER_BLUR_PX}px)`;
     rawMaskCtx.drawImage(workMaskCanvas, 0, 0);
     rawMaskCtx.filter = 'none';
-    workMaskCtx.clearRect(0, 0, W, H);
-    workMaskCtx.drawImage(rawMaskCanvas, 0, 0);
+    img = rawMaskCtx.getImageData(0, 0, W, H);
+    d = img.data;
+    for (let i = 0; i < d.length; i += 4) {
+      let a = d[i + 3];
+      if (a >= 200) a = 255;
+      else if (a <= 16) a = 0;
+      d[i] = d[i + 1] = d[i + 2] = 255;
+      d[i + 3] = a;
+    }
+    workMaskCtx.putImageData(img, 0, 0);
   }
 }
 
 function onResults(results) {
-  if (!ctx || !running) return;
+  if (!ctx || !running || useFallback) return;
+  lastResultsAt = performance.now();
   syncCanvasToVideo();
   const W = canvasW;
   const H = canvasH;
@@ -300,8 +369,7 @@ function onResults(results) {
 }
 
 /**
- * Soft-matte fallback when MediaPipe is unavailable.
- * Stable opaque oval over the torso/head — no per-frame jitter, solid interior.
+ * Soft-matte fallback — solid opaque oval over torso/head, soft edge only.
  */
 function loopFallback() {
   const tick = () => {
@@ -321,14 +389,14 @@ function loopFallback() {
     personCtx.drawImage(videoEl, 0, 0, W, H);
     personCtx.globalCompositeOperation = 'destination-in';
 
-    // Stable radial matte: fully opaque through most of the person, soft edge only
+    // Large solid core so face never shows background through the middle
     const g = personCtx.createRadialGradient(
-      W * 0.5, H * 0.42, H * 0.12,
-      W * 0.5, H * 0.48, H * 0.46
+      W * 0.5, H * 0.40, H * 0.08,
+      W * 0.5, H * 0.48, H * 0.52
     );
     g.addColorStop(0, 'rgba(0,0,0,1)');
-    g.addColorStop(0.78, 'rgba(0,0,0,1)');
-    g.addColorStop(0.92, 'rgba(0,0,0,0.55)');
+    g.addColorStop(0.72, 'rgba(0,0,0,1)');
+    g.addColorStop(0.88, 'rgba(0,0,0,0.7)');
     g.addColorStop(1, 'rgba(0,0,0,0)');
     personCtx.fillStyle = g;
     personCtx.fillRect(0, 0, W, H);

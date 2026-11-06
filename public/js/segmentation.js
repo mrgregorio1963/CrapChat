@@ -7,6 +7,9 @@
  *  2) slight blur = soft dilation so hair/head edges aren't eaten
  *  3) contrast/threshold so the person interior is fully opaque
  *  4) tiny feather blur only at the silhouette edge
+ *
+ * MediaPipe's mask lives in the ALPHA channel. destination-in reads source alpha,
+ * so every refine step must keep person confidence in alpha (not RGB-only).
  */
 import { drawBackgroundCover, getCurrentBackgroundImage } from './backgrounds.js';
 
@@ -209,7 +212,7 @@ function loopMediapipe() {
 
 /**
  * Temporal EMA + dilate + threshold + feather.
- * Writes the finished alpha mask into workMaskCanvas.
+ * Writes the finished ALPHA mask into workMaskCanvas (RGB white, A = person).
  */
 function refineMask(W, H) {
   ensureAuxCanvases(W, H);
@@ -228,7 +231,7 @@ function refineMask(W, H) {
     smoothMaskCtx.globalAlpha = 1;
   }
 
-  // 2) Soft dilation: blur expands bright (person) regions so hair/head aren't eaten
+  // 2) Soft dilation: blur expands person regions (alpha) so hair/head aren't eaten
   workMaskCtx.save();
   workMaskCtx.clearRect(0, 0, W, H);
   workMaskCtx.filter = `blur(${DILATE_BLUR_PX}px)`;
@@ -236,24 +239,28 @@ function refineMask(W, H) {
   workMaskCtx.filter = 'none';
   workMaskCtx.restore();
 
-  // 3) Contrast / threshold — person interior snaps to fully opaque
+  // 3) Contrast / threshold — person interior snaps to fully opaque ALPHA
+  // MediaPipe stores the mask in alpha (RGB is often 255). destination-in uses alpha.
   const img = workMaskCtx.getImageData(0, 0, W, H);
   const d = img.data;
   const span = MASK_HI - MASK_LO || 1;
   for (let i = 0; i < d.length; i += 4) {
-    // MediaPipe mask is grayscale in RGB (person ≈ white)
-    let v = d[i];
+    // Prefer alpha; fall back to luma if a browser put the mask in RGB only.
+    let v = d[i + 3];
+    if (v === 255) {
+      const luma = (d[i] + d[i + 1] + d[i + 2]) / 3;
+      if (luma < 250) v = luma;
+    }
     if (v <= MASK_LO) v = 0;
     else if (v >= MASK_HI) v = 255;
     else v = ((v - MASK_LO) / span) * 255;
-    d[i] = d[i + 1] = d[i + 2] = v;
-    d[i + 3] = 255;
+    d[i] = d[i + 1] = d[i + 2] = 255;
+    d[i + 3] = v;
   }
   workMaskCtx.putImageData(img, 0, 0);
 
-  // 4) Tiny feather only at the silhouette edge
+  // 4) Tiny feather only at the silhouette edge (blurs alpha)
   if (FEATHER_BLUR_PX > 0) {
-    // Draw blurred copy back onto itself via an intermediate pass on rawMask as scratch
     rawMaskCtx.clearRect(0, 0, W, H);
     rawMaskCtx.filter = `blur(${FEATHER_BLUR_PX}px)`;
     rawMaskCtx.drawImage(workMaskCanvas, 0, 0);

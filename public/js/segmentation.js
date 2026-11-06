@@ -1,6 +1,12 @@
 /**
  * Person segmentation + canvas compositing.
  * Canvas matches the camera's actual videoWidth/videoHeight so faces aren't stretched.
+ *
+ * Mask pipeline (MediaPipe):
+ *  1) temporal EMA of the segmentation mask (kills flicker)
+ *  2) slight blur = soft dilation so hair/head edges aren't eaten
+ *  3) contrast/threshold so the person interior is fully opaque
+ *  4) tiny feather blur only at the silhouette edge
  */
 import { drawBackgroundCover, getCurrentBackgroundImage } from './backgrounds.js';
 
@@ -10,8 +16,6 @@ let useFallback = false;
 let videoEl = null;
 let canvas = null;
 let ctx = null;
-let maskCanvas = null;
-let maskCtx = null;
 let running = false;
 let rafId = null;
 let outputStream = null;
@@ -20,6 +24,32 @@ const PROCESS_EVERY_MS = 33;
 let canvasW = 640;
 let canvasH = 480;
 let resizeObserver = null;
+
+/** Raw mask from MediaPipe this frame. */
+let rawMaskCanvas = null;
+let rawMaskCtx = null;
+/** Temporally smoothed mask (persists across frames). */
+let smoothMaskCanvas = null;
+let smoothMaskCtx = null;
+/** Work buffer for blur / threshold / feather. */
+let workMaskCanvas = null;
+let workMaskCtx = null;
+/** Person cutout composite buffer (reused, not recreated each frame). */
+let personCanvas = null;
+let personCtx = null;
+/** Whether smoothMask has a valid previous frame. */
+let hasSmoothMask = false;
+
+/** Weight on the previous mask (0.6–0.7). Higher = less flicker, more lag. */
+const TEMPORAL_PREV = 0.68;
+/** Mask values at/below this become fully transparent after contrast. */
+const MASK_LO = 70;
+/** Mask values at/above this become fully opaque after contrast. */
+const MASK_HI = 165;
+/** Blur radius (px) used as soft dilation before thresholding. */
+const DILATE_BLUR_PX = 3;
+/** Feather blur (px) applied after thresholding for soft silhouette edge. */
+const FEATHER_BLUR_PX = 2;
 
 export function isSegmentationReady() {
   return ready;
@@ -35,6 +65,7 @@ export async function initSegmentation() {
       locateFile: (file) =>
         `https://cdn.jsdelivr.net/npm/@mediapipe/selfie_segmentation/${file}`,
     });
+    // modelSelection: 1 = general/landscape model — more stable for upper-body / head
     selfieSegmentation.setOptions({
       modelSelection: 1,
       selfieMode: true,
@@ -64,6 +95,35 @@ function loadScript(src) {
   });
 }
 
+function ensureAuxCanvases(vw, vh) {
+  const need = (c) => !c || c.width !== vw || c.height !== vh;
+  if (need(rawMaskCanvas)) {
+    rawMaskCanvas = document.createElement('canvas');
+    rawMaskCanvas.width = vw;
+    rawMaskCanvas.height = vh;
+    rawMaskCtx = rawMaskCanvas.getContext('2d', { willReadFrequently: true });
+  }
+  if (need(smoothMaskCanvas)) {
+    smoothMaskCanvas = document.createElement('canvas');
+    smoothMaskCanvas.width = vw;
+    smoothMaskCanvas.height = vh;
+    smoothMaskCtx = smoothMaskCanvas.getContext('2d', { willReadFrequently: true });
+    hasSmoothMask = false;
+  }
+  if (need(workMaskCanvas)) {
+    workMaskCanvas = document.createElement('canvas');
+    workMaskCanvas.width = vw;
+    workMaskCanvas.height = vh;
+    workMaskCtx = workMaskCanvas.getContext('2d', { willReadFrequently: true });
+  }
+  if (need(personCanvas)) {
+    personCanvas = document.createElement('canvas');
+    personCanvas.width = vw;
+    personCanvas.height = vh;
+    personCtx = personCanvas.getContext('2d');
+  }
+}
+
 /** Sync internal canvas size to the live camera frame (handles orientation). */
 function syncCanvasToVideo() {
   if (!videoEl || !canvas) return false;
@@ -77,14 +137,10 @@ function syncCanvasToVideo() {
   canvasH = vh;
   canvas.width = vw;
   canvas.height = vh;
-  if (!maskCanvas) {
-    maskCanvas = document.createElement('canvas');
-    maskCtx = maskCanvas.getContext('2d', { willReadFrequently: true });
-  }
-  maskCanvas.width = vw;
-  maskCanvas.height = vh;
+  ensureAuxCanvases(vw, vh);
   // Hint CSS aspect via style so object-fit has the right intrinsic ratio
   canvas.style.aspectRatio = `${vw} / ${vh}`;
+  hasSmoothMask = false;
   return true;
 }
 
@@ -93,12 +149,12 @@ export function startCompositor(video, outCanvas) {
   canvas = outCanvas;
   ctx = canvas.getContext('2d', { willReadFrequently: true });
   running = true;
+  hasSmoothMask = false;
   syncCanvasToVideo();
 
   const onMeta = () => syncCanvasToVideo();
   videoEl.addEventListener('loadedmetadata', onMeta);
   videoEl.addEventListener('resize', onMeta);
-  // Some browsers fire resize on HTMLVideoElement when orientation changes
   if (typeof ResizeObserver !== 'undefined') {
     resizeObserver?.disconnect();
     resizeObserver = new ResizeObserver(() => syncCanvasToVideo());
@@ -112,8 +168,6 @@ export function startCompositor(video, outCanvas) {
     loopMediapipe();
   }
 
-  // Recreate capture stream if canvas size changes mid-call would require
-  // replaceTrack — callers rebuild outbound stream after start.
   outputStream = canvas.captureStream(30);
   return outputStream;
 }
@@ -134,6 +188,7 @@ export function stopCompositor() {
   resizeObserver = null;
   outputStream?.getTracks().forEach((t) => t.stop());
   outputStream = null;
+  hasSmoothMask = false;
 }
 
 function loopMediapipe() {
@@ -152,36 +207,95 @@ function loopMediapipe() {
   rafId = requestAnimationFrame(tick);
 }
 
+/**
+ * Temporal EMA + dilate + threshold + feather.
+ * Writes the finished alpha mask into workMaskCanvas.
+ */
+function refineMask(W, H) {
+  ensureAuxCanvases(W, H);
+
+  // 1) Temporal blend: out = new*(1-α) + prev*α  via source-over
+  if (!hasSmoothMask) {
+    smoothMaskCtx.globalAlpha = 1;
+    smoothMaskCtx.globalCompositeOperation = 'source-over';
+    smoothMaskCtx.clearRect(0, 0, W, H);
+    smoothMaskCtx.drawImage(rawMaskCanvas, 0, 0);
+    hasSmoothMask = true;
+  } else {
+    smoothMaskCtx.globalCompositeOperation = 'source-over';
+    smoothMaskCtx.globalAlpha = 1 - TEMPORAL_PREV;
+    smoothMaskCtx.drawImage(rawMaskCanvas, 0, 0);
+    smoothMaskCtx.globalAlpha = 1;
+  }
+
+  // 2) Soft dilation: blur expands bright (person) regions so hair/head aren't eaten
+  workMaskCtx.save();
+  workMaskCtx.clearRect(0, 0, W, H);
+  workMaskCtx.filter = `blur(${DILATE_BLUR_PX}px)`;
+  workMaskCtx.drawImage(smoothMaskCanvas, 0, 0);
+  workMaskCtx.filter = 'none';
+  workMaskCtx.restore();
+
+  // 3) Contrast / threshold — person interior snaps to fully opaque
+  const img = workMaskCtx.getImageData(0, 0, W, H);
+  const d = img.data;
+  const span = MASK_HI - MASK_LO || 1;
+  for (let i = 0; i < d.length; i += 4) {
+    // MediaPipe mask is grayscale in RGB (person ≈ white)
+    let v = d[i];
+    if (v <= MASK_LO) v = 0;
+    else if (v >= MASK_HI) v = 255;
+    else v = ((v - MASK_LO) / span) * 255;
+    d[i] = d[i + 1] = d[i + 2] = v;
+    d[i + 3] = 255;
+  }
+  workMaskCtx.putImageData(img, 0, 0);
+
+  // 4) Tiny feather only at the silhouette edge
+  if (FEATHER_BLUR_PX > 0) {
+    // Draw blurred copy back onto itself via an intermediate pass on rawMask as scratch
+    rawMaskCtx.clearRect(0, 0, W, H);
+    rawMaskCtx.filter = `blur(${FEATHER_BLUR_PX}px)`;
+    rawMaskCtx.drawImage(workMaskCanvas, 0, 0);
+    rawMaskCtx.filter = 'none';
+    workMaskCtx.clearRect(0, 0, W, H);
+    workMaskCtx.drawImage(rawMaskCanvas, 0, 0);
+  }
+}
+
 function onResults(results) {
   if (!ctx || !running) return;
   syncCanvasToVideo();
   const W = canvasW;
   const H = canvasH;
+  ensureAuxCanvases(W, H);
   const bg = getCurrentBackgroundImage();
   ctx.save();
   ctx.clearRect(0, 0, W, H);
   drawBackgroundCover(ctx, bg, W, H);
 
   if (results.segmentationMask) {
-    maskCtx.clearRect(0, 0, W, H);
-    // Draw mask and person image at canvas size (same aspect as camera)
-    maskCtx.drawImage(results.segmentationMask, 0, 0, W, H);
-    const tmp = document.createElement('canvas');
-    tmp.width = W;
-    tmp.height = H;
-    const tctx = tmp.getContext('2d');
-    // results.image matches the sent frame aspect
-    tctx.drawImage(results.image, 0, 0, W, H);
-    tctx.globalCompositeOperation = 'destination-in';
-    tctx.drawImage(maskCanvas, 0, 0);
-    ctx.drawImage(tmp, 0, 0);
+    rawMaskCtx.clearRect(0, 0, W, H);
+    rawMaskCtx.drawImage(results.segmentationMask, 0, 0, W, H);
+    refineMask(W, H);
+
+    personCtx.clearRect(0, 0, W, H);
+    personCtx.globalCompositeOperation = 'source-over';
+    personCtx.drawImage(results.image, 0, 0, W, H);
+    personCtx.globalCompositeOperation = 'destination-in';
+    personCtx.drawImage(workMaskCanvas, 0, 0);
+    personCtx.globalCompositeOperation = 'source-over';
+    ctx.drawImage(personCanvas, 0, 0);
   } else if (videoEl) {
-    // Contain-fit would letterbox; we fill canvas which already matches video aspect
     ctx.drawImage(videoEl, 0, 0, W, H);
   }
   ctx.restore();
 }
 
+/**
+ * Soft-matte fallback when MediaPipe is unavailable.
+ * Stable opaque oval over the torso/head — no per-frame jitter, solid interior.
+ */
 function loopFallback() {
   const tick = () => {
     if (!running) return;
@@ -190,23 +304,30 @@ function loopFallback() {
     syncCanvasToVideo();
     const W = canvasW;
     const H = canvasH;
+    ensureAuxCanvases(W, H);
     const bg = getCurrentBackgroundImage();
     ctx.clearRect(0, 0, W, H);
     drawBackgroundCover(ctx, bg, W, H);
 
-    const tmp = document.createElement('canvas');
-    tmp.width = W;
-    tmp.height = H;
-    const tctx = tmp.getContext('2d');
-    tctx.drawImage(videoEl, 0, 0, W, H);
-    tctx.globalCompositeOperation = 'destination-in';
-    const g = tctx.createRadialGradient(W * 0.5, H * 0.45, H * 0.15, W * 0.5, H * 0.5, H * 0.48);
+    personCtx.clearRect(0, 0, W, H);
+    personCtx.globalCompositeOperation = 'source-over';
+    personCtx.drawImage(videoEl, 0, 0, W, H);
+    personCtx.globalCompositeOperation = 'destination-in';
+
+    // Stable radial matte: fully opaque through most of the person, soft edge only
+    const g = personCtx.createRadialGradient(
+      W * 0.5, H * 0.42, H * 0.12,
+      W * 0.5, H * 0.48, H * 0.46
+    );
     g.addColorStop(0, 'rgba(0,0,0,1)');
-    g.addColorStop(0.7, 'rgba(0,0,0,0.85)');
+    g.addColorStop(0.78, 'rgba(0,0,0,1)');
+    g.addColorStop(0.92, 'rgba(0,0,0,0.55)');
     g.addColorStop(1, 'rgba(0,0,0,0)');
-    tctx.fillStyle = g;
-    tctx.fillRect(0, 0, W, H);
-    ctx.drawImage(tmp, 0, 0);
+    personCtx.fillStyle = g;
+    personCtx.fillRect(0, 0, W, H);
+
+    personCtx.globalCompositeOperation = 'source-over';
+    ctx.drawImage(personCanvas, 0, 0);
   };
   rafId = requestAnimationFrame(tick);
 }
